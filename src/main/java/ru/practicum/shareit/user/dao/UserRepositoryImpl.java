@@ -27,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
     public User addUser(User user) {
         user.setId(getIdOfForUser());
         users.put(user.getId(), user);
-        log.info("пользователь c ID - {} добавлен в базу данных", user.getId());
+        log.info("пользователь c id - {} добавлен в базу данных", user.getId());
         return user;
     }
 
