@@ -18,8 +18,7 @@ public class ItemRepositoryImpl implements ItemRepository {
     private long idForItem = 0;
 
     public long getIdForItem() {
-        idForItem++;
-        return idForItem;
+        return ++idForItem;
     }
 
     @Override

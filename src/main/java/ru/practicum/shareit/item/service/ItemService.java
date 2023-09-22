@@ -1,10 +1,10 @@
-package ru.practicum.shareit.item;
+package ru.practicum.shareit.item.service;
 
 import ru.practicum.shareit.item.dto.ItemDto;
 
 import java.util.List;
 
-interface ItemService {
+public interface ItemService {
     List<ItemDto> getAllItemsByUser(long userId);
 
     ItemDto saveItem(long userId, ItemDto item);

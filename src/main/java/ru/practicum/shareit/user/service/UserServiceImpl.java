@@ -1,13 +1,15 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.DataNotFoundException;
 import ru.practicum.shareit.exception.EmailAlreadyExistsException;
-import ru.practicum.shareit.user.dao.UserRepositoryImpl;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +21,7 @@ import java.util.stream.Stream;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
 
     @Override

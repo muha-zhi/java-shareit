@@ -19,8 +19,7 @@ public class UserRepositoryImpl implements UserRepository {
     private long idOfForUser = 0;
 
     public long getIdOfForUser() {
-        idOfForUser++;
-        return idOfForUser;
+        return ++idOfForUser;
     }
 
     @Override

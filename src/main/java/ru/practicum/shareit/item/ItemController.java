@@ -5,15 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import javax.websocket.server.PathParam;
 import java.util.List;
 
-
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -53,6 +50,7 @@ public class ItemController {
     public List<ItemDto> searchItems(@PathParam("text") String text) {
         log.info("полчен запрос /items/search text '{}'", text);
         return itemService.searchItems(text);
+
 
     }
 }
