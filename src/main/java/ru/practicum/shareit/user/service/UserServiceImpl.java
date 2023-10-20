@@ -3,8 +3,8 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exception.DataNotFoundException;
-import ru.practicum.shareit.exception.EmailAlreadyExistsException;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dao.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -18,6 +18,7 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -26,7 +27,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> getAllUsers() {
         log.info("выполняется запрос в базу данных на поулчение спика всех пользователей");
-        List<User> forRet = userRepository.getUsers();
+        List<User> forRet = userRepository.findAll();
         return forRet.stream()
                 .flatMap(u -> {
                     UserDto dto = UserMapper.toUserDto(u);
@@ -35,78 +36,61 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public UserDto save(UserDto userDto) {
 
-        if (userDto != null) {
-            log.info("выполняется запрос на добавление нового пользователя");
+        User userForSave = UserMapper.toUser(userDto);
 
-            if (userRepository.existUserEmail(userDto)) {
+        log.info("выполняется запрос на добавление нового пользователя");
 
-                log.warn("пользователь с такой электронной почтой {} уже существует", userDto.getEmail());
-
-                throw new EmailAlreadyExistsException("пользователь" +
-                        " с такой электронной почтой уже существует");
-            }
-
-            User user = userRepository.addUser(UserMapper.toUser(userDto));
-            return UserMapper.toUserDto(user);
-        }
-        return null;
+        User userForReturn = userRepository.save(userForSave);
+        return UserMapper.toUserDto(userForReturn);
     }
 
+    @Transactional
     @Override
     public UserDto updateUser(UserDto userDto, long id) {
-        if (userDto != null && id != 0) {
-            if (getUserById(id) != null) {
 
-                userDto.setId(id);
-                log.info("выполняется запрос на обновление пользователя | UserID - {}", id);
-                if (userRepository.existUserEmail(userDto)) {
+        log.info("выполняется запрос на обновление пользователя | UserID - {}", id);
 
-                    log.warn("пользователь" +
-                            " с такой электронной почтой {} уже существует", userRepository);
+        User userForUpdate = getUserByIdIfExists(id);
 
-                    throw new EmailAlreadyExistsException("пользователь" +
-                            " с такой электронной почтой уже существует");
-                }
-
-                User user = userRepository.updateUser(UserMapper.toUser(userDto));
-                log.info("Пользватель с ID {} обновлен {}", userDto.getId(), userDto);
-
-                return UserMapper.toUserDto(user);
-
-            } else {
-                log.warn("пользователь с ID - {} не найден", id);
-                throw new DataNotFoundException(String.format("пользователь с ID - %s не найден", id));
-            }
+        if (userDto.getName() != null) {
+            userForUpdate.setName(userDto.getName());
         }
-        return null;
+        if (userDto.getEmail() != null) {
+            userForUpdate.setEmail(userDto.getEmail());
+        }
+
+        User userForReturn = userRepository.save(userForUpdate);
+
+        log.info("Пользватель с ID {} обновлен {}", userDto.getId(), userDto);
+
+        return UserMapper.toUserDto(userForReturn);
     }
 
     public UserDto getUserById(long id) {
-        if (id == 0) {
-            return null;
-        }
+
         log.info("выполняется запрос на поулучение ползователья | UserId - {}", id);
-        User user = userRepository.getUserById(id);
-        if (user == null) {
-            log.warn("пользователь с ID {} не найден", id);
-            throw new DataNotFoundException("пользователь с id " + id + " не найден");
-        }
-        return UserMapper.toUserDto(user);
+
+        User userForReturn = getUserByIdIfExists(id);
+
+        return UserMapper.toUserDto(userForReturn);
     }
 
+    @Transactional
     @Override
     public void deleteUserById(long id) {
         log.info("выполняется запрос на удаление ползователья | UserId - {}", id);
-        User user = userRepository.getUserById(id);
-        if (user == null) {
-            throw new DataNotFoundException("пользватель с id " + id + " не найден");
-        } else {
-            userRepository.delUserById(id);
-        }
+        getUserByIdIfExists(id);
+        userRepository.deleteById(id);
     }
 
+    @Override
+    public User getUserByIdIfExists(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new DataNotFoundException("пользователь с id " + id + " не найден"));
+
+    }
 
 }

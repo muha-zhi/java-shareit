@@ -2,13 +2,10 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.exception.ErrorResponse;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -49,13 +46,6 @@ public class UserController {
     public void deleteUserById(@PathVariable long id) {
         log.info("получен запрос: DELETE /users/{id} | UserID - {}", id);
         userService.deleteUserById(id);
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse validationErrorHandler(final ConstraintViolationException e) {
-        log.debug("Получен статус 400 BAD REQUEST {}", e.getMessage(), e);
-        return new ErrorResponse("Ошибка валидации", e.getMessage());
     }
 
 

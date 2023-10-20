@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
@@ -13,17 +12,16 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class ItemDto {
 
-    @EqualsAndHashCode.Include
     private Long id;
 
-    @NotBlank(message = "имя пользователя не может быть пустым")
-    @NotNull(message = "имя пользователя не может быть пустым")
+    @NotNull(message = "имя вещи не может быть пустым")
+    @NotBlank(message = "имя вещи не может быть пустым")
     private String name;
 
-    @NotBlank(message = "поле с описанием вещи не может быть пустым")
-    @NotNull(message = "поле с описанием вещи не может быть пустым")
+    @NotNull(message = "описание вещи не может быть пустым")
+    @NotBlank(message = "описание вещи не может быть пустым")
     private String description;
 
-    @NotNull(message = "поле available не может быть пустым")
+    @NotNull(message = "поле доступа вещи не может быть пустым")
     private Boolean available;
 }
