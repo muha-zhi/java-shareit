@@ -1,13 +1,13 @@
 package ru.practicum.shareit.exception;
 
 import lombok.extern.slf4j.Slf4j;
-import org.postgresql.util.PSQLException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
+import java.sql.SQLException;
 import java.util.Map;
 
 
@@ -20,14 +20,6 @@ public class ErrorHandler {
     public ErrorResponse validationErrorHandler(final DataNotFoundException e) {
         return new ErrorResponse("Ошибка поиска", e.getMessage());
     }
-
-
-    @ExceptionHandler(PSQLException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse validationErrorHandler(final PSQLException e) {
-        return new ErrorResponse("Ошибк запроса", e.getMessage());
-    }
-
 
     @ExceptionHandler(WrongOwnerException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
@@ -60,6 +52,12 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> notFoundBookingErrorHandler(final BookingDataException e) {
         log.debug("Получен статус 404 BAD REQUEST {}", e.getMessage(), e);
+        return Map.of("error", e.getMessage());
+    }
+
+    @ExceptionHandler(SQLException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public Map<String, String> unknownErrorHandler(final SQLException e) {
         return Map.of("error", e.getMessage());
     }
 }
