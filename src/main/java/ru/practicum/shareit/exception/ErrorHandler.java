@@ -25,7 +25,7 @@ public class ErrorHandler {
     @ExceptionHandler(PSQLException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse validationErrorHandler(final PSQLException e) {
-        return new ErrorResponse("Ошибка запроса", e.getMessage());
+        return new ErrorResponse("Ошибк запроса", e.getMessage());
     }
 
 
