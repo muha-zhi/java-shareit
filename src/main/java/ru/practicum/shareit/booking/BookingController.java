@@ -40,14 +40,15 @@ public class BookingController {
     }
 
     @GetMapping()
-    public List<BookingDto> getBookingInfoList(@RequestHeader("X-Sharer-User-Id") long bookerId, @RequestParam(value = "state", defaultValue = "ALL") String stringState) {
+    public List<BookingDto> getBookingInfoList(@RequestHeader("X-Sharer-User-Id") long bookerId,
+                                               @RequestParam(value = "state", defaultValue = "ALL") String stringState) {
+
         log.info("получен запрос GET bookings | BookingId - {}", bookerId);
-        BookingRequestState state;
-        try {
-            state = BookingRequestState.valueOf(stringState);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unknown state: " + stringState);
-        }
+
+        BookingRequestState state = BookingRequestState.from(stringState).orElseThrow(
+                () -> new IllegalArgumentException("Unknown state: " + stringState));
+
+
         return bookingService.getBookingInfoList(bookerId, state);
     }
 
