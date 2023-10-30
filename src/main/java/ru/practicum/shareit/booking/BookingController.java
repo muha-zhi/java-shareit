@@ -2,17 +2,21 @@ package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingSaveDto;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/bookings")
 @Slf4j
+@Validated
 @RequiredArgsConstructor
 public class BookingController {
 
@@ -34,14 +38,17 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long bookingId) {
+    public BookingDto getBookingInfo(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @PathVariable long bookingId) {
         log.info("получен запрос GET bookings/{bookingId} | BookingId - {}", bookingId);
         return bookingService.getBookingInfo(bookingId, userId);
     }
 
     @GetMapping()
     public List<BookingDto> getBookingInfoList(@RequestHeader("X-Sharer-User-Id") long bookerId,
-                                               @RequestParam(value = "state", defaultValue = "ALL") String stringState) {
+                                               @RequestParam(value = "state", defaultValue = "ALL") String stringState,
+                                               @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                               @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
 
         log.info("получен запрос GET bookings | BookingId - {}", bookerId);
 
@@ -49,11 +56,14 @@ public class BookingController {
                 () -> new IllegalArgumentException("Unknown state: " + stringState));
 
 
-        return bookingService.getBookingInfoList(bookerId, state);
+        return bookingService.getBookingInfoList(bookerId, state, from, size);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getBookingOwnerInfoList(@RequestHeader("X-Sharer-User-Id") long ownerId, @RequestParam(value = "state", defaultValue = "ALL") String stringState) {
+    public List<BookingDto> getBookingOwnerInfoList(@RequestHeader("X-Sharer-User-Id") long ownerId,
+                                                    @RequestParam(value = "state", defaultValue = "ALL") String stringState,
+                                                    @RequestParam(value = "from", defaultValue = "0") @Min(0) int from,
+                                                    @RequestParam(value = "size", defaultValue = "10") @Positive int size) {
         log.info("получен запрос GET bookings/owner | OwnerId - {}", ownerId);
         BookingRequestState state;
         try {
@@ -61,7 +71,7 @@ public class BookingController {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Unknown state: " + stringState);
         }
-        return bookingService.getBookingOwnerInfoList(ownerId, state);
+        return bookingService.getBookingOwnerInfoList(ownerId, state, from, size);
     }
 
 
