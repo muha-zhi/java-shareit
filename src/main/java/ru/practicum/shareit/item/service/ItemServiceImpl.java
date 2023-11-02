@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -18,6 +19,8 @@ import ru.practicum.shareit.item.dao.ItemRepository;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -47,14 +50,16 @@ public class ItemServiceImpl implements ItemService {
 
     private final CommentRepository commentRepository;
 
+    private final ItemRequestService itemRequestService;
+
 
     @Override
-    public List<ItemReturnDto> getAllItemsByUser(long ownerId) {
+    public List<ItemReturnDto> getAllItemsByUser(long ownerId, int from, int size) {
 
         log.info("выполнется запрос на получение всех вещей пользователя | UserId - {}", ownerId);
         userService.getUserByIdIfExists(ownerId);
 
-        List<Item> allUserItems = itemRepository.findAllByOwnerId(ownerId).stream()
+        List<Item> allUserItems = itemRepository.findAllByOwnerId(ownerId, PageRequest.of(from / size, size)).stream()
                 .sorted(Comparator.comparing(Item::getId))
                 .collect(Collectors.toList());
 
@@ -81,9 +86,12 @@ public class ItemServiceImpl implements ItemService {
         log.info("выполняется запрос на добавление новой вещи");
 
         User owner = userService.getUserByIdIfExists(ownerId);
+        ItemRequest itemRequest = null;
+        if (item.getRequestId() != null) {
+            itemRequest = itemRequestService.getItemRequestIfExists(item.getRequestId());
+        }
 
-        Item forRet = itemRepository.save(ItemMapper.toItem(item, owner));
-        return ItemMapper.toItemDto(forRet);
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item, owner, itemRequest)));
     }
 
     @Transactional
@@ -106,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemReturnDto getItemInfo(long id, long ownerId) {
         Item item = getItemIfExists(id);
-        log.info("выполняется запрос на получение пользователя по ID | UserId - {}", id);
+        log.info("выполняется запрос на получение вещи по ID | UserId - {}", id);
 
         List<Booking> bookings = new ArrayList<>();
         if (item.getOwner().getId().equals(ownerId)) {
@@ -123,11 +131,11 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItems(String text) {
+    public List<ItemDto> searchItems(String text, int from, int size) {
         log.info("выполняется поиск по тексту text - {}", text);
         if (text.isBlank() || text.isEmpty()) return new ArrayList<>();
 
-        return mapperListItem(itemRepository.findAllByNameAndDescription(text));
+        return mapperListItem(itemRepository.findAllByNameAndDescription(text, PageRequest.of(from / size, size)));
     }
 
     @Override
