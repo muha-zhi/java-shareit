@@ -55,7 +55,7 @@ public class ItemController {
                                               @RequestParam(value = "from", defaultValue = "0") int from,
                                               @RequestParam(value = "size", defaultValue = "10") int size) {
         log.info("полчен запрос /items/search text '{}'", text);
-        return itemClient.searchItems( text,  from,  size, userId);
+        return itemClient.searchItems(text, from, size, userId);
 
 
     }

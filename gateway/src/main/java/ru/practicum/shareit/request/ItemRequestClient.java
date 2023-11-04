@@ -27,7 +27,7 @@ public class ItemRequestClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> saveRequest(long requesterId,  ItemRequestDto itemRequestDto) {
+    public ResponseEntity<Object> saveRequest(long requesterId, ItemRequestDto itemRequestDto) {
         return post("", requesterId, itemRequestDto);
     }
 
